@@ -1,0 +1,56 @@
+- NGINX được xây dựng để cung cấp việc sử dụng bộ nhớ thấp và đồng thời cao
+
+- NGINX sử dụng cách tiếp cận theo hướng sự kiện, không đồng bộ trong đó các yêu cầu được xử lý trong một luồng
+
+- Apache 39.4% và NGINX đứng ngay sau với 31.8%
+
+- Apache được cấu hình theo kiểu “prefork”: nghĩa là có bao nhiêu request, có bấy nhiêu process
+
+- Apache tốn rất nhiều tài nguyên hệ thống.
+- 1 NGINX process có thể xử lý nhiều request liên tục
+
+- NodeJS có thể chạy trên nhiều server khác nhau như chúng có thể chạy trên Apache, IIS, NGINX,..
+
+- Nodejs cung cấp khả năng tạo máy chủ web của riêng bạn, máy chủ này sẽ xử lý các yêu cầu HTTP không đồng bộ
+
+- Tốt nhất nên dùng webserver của NodeJS
+- Node.js là một nền tảng (Platform) phát triển độc lập được xây dựng ở trên Javascript Runtime của Chrome mà chúng ta có thể xây dựng được các ứng dụng mạng một cách nhanh chóng và dễ dàng mở rộng.
+- Node.Js là môi trường máy chủ mã nguồn mở. (open source server enviroment)
+- Node.js sử dụng javascript để chạy trên môi trường server.
+
+-Quy trình xử lý EventLoop:
+Bước 1
+
+Bất cứ khi nào một yêu cầu đến API Node.js, yêu cầu đó sẽ được thêm vào hàng đợi sự kiện. Điều này là do Node.js không thể xử lý nhiều yêu cầu đồng thời. Lần đầu tiên, yêu cầu đến được thêm vào hàng đợi sự kiện.
+ 
+Bước 2
+
+Bây giờ, bạn có thể thấy trong sơ đồ có một vòng lặp luôn kiểm tra xem có sự kiện hoặc yêu cầu nào trong hàng đợi sự kiện hay không. Nếu có bất kỳ yêu cầu nào ở đó, thì theo thuộc tính "Đến trước, được phục vụ trước" của hàng đợi, các yêu cầu sẽ được phục vụ.
+ 
+Bước 3
+
+Vòng lặp sự kiện Node.js này là một luồng và thực hiện các tác vụ i / o không chặn, vì vậy nó sẽ gửi yêu cầu đến nhóm luồng nội bộ C ++ nơi có thể chạy rất nhiều luồng. Nhóm luồng nội bộ C ++ này là một phần của vòng lặp sự kiện được phát triển trong Libuv. Điều này có thể xử lý nhiều yêu cầu. Bây giờ, vòng lặp sự kiện sẽ kiểm tra lại nhiều lần nếu có bất kỳ sự kiện nào trong Hàng đợi Sự kiện. Nếu có bất kỳ, thì nó sẽ phân phối đến nhóm luồng nếu quá trình chặn ở đó. 
+ 
+Bước 4
+
+Bây giờ, nhóm luồng nội bộ xử lý rất nhiều yêu cầu, như yêu cầu cơ sở dữ liệu, yêu cầu tệp và nhiều yêu cầu khác.
+ 
+Bước 5
+
+Bất cứ khi nào bất kỳ luồng nào hoàn thành tác vụ đó, hàm gọi lại sẽ gọi và gửi phản hồi trở lại vòng lặp sự kiện.
+ 
+Bước 6
+
+Bây giờ, vòng lặp sự kiện sẽ gửi lại phản hồi cho khách hàng có yêu cầu được hoàn thành.  
+
+- Nodejs có thể thỏa mãn mọi nhu cầu lập trình, phát triển ứng dụng. Các chuyên gia trong lĩnh vực lập trình, công nghệ khuyên dùng Nodejs khi phát triển các ứng dụng như Websocket server, Fast File Upload Client, Ad Server, Cloud Services, RESTful API, Any Real-time Data Application,... 
+
+
+Vì sao async lại vô cùng quan trọng trong node
+Khi chạy 1 chương trình bất kì, máy tính đều thực hiện các công việc tương tự nhau, hệ điều hành sẽ launch chương trình từ ổ cứng đó vào ram, khởi tạo 1 vùng nhớ cho việc chạy chương trình(heap, stack), khi chạy chương trình sẽ tương tác với các thành bên ngoài gọi là I/O(đọc file từ ổ cứng, giao tiếp với chuột/bàn phím, gọi tới và đợi kết quả từ các web server, ...).
+
+Từng thành phần ở trên sẽ ảnh hưởng tới tổng thể hiệu năng của chương trình(bottle-neck). Nếu chương trình sử dụng nhiều tính toán như encode/decode, hashing, ... thì tổng thể hiệu năng phụ thuộc nhiều vào cpu, nên gọi đó là cpu-bound, nếu chương trình gọi tới nhiều web service hay database thì sẽ phụ thuộc vào tốc độ kết nối hay đáp ứng của IO, nên gọi đó là IO-bound, tương tự với memory-bound/cache-bound.
+
+Với đặc thù của ứng dụng web phía client là gọi tới nhiều web service nên sẽ bị hạn chế rất nhiều ở IO. Nên giải quyết IO hẳn nhiên là ưu tiền hàng đầu của JS và giải pháp được JS chọn là cơ chế bất động bộ bằng event-loop.
+
+Nhưng rất may là tới bản node 10.5 đã thử nghiệm và 11.7 đã chính thức hỗ cơ chế multithread.
